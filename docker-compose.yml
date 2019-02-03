@@ -1,0 +1,10 @@
+version: "3"
+services:
+  bot:
+    build: .
+    links:
+      - backend
+  backend:
+    image: mongo
+    ports:
+      - "27017:27017"

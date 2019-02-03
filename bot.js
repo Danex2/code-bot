@@ -64,7 +64,7 @@ client.on("message", async msg => {
     user &&
     user.lastCheckin.getTime() === new Date(user.lastCheckin).getTime()
   ) {
-    msg.author.send("You've already checked in!");
+    msg.author.send("You've already checked in!").catch(e => console.log(e));
   }
   if (msg.content === "!stats" && user) {
     const embed = new Discord.RichEmbed()

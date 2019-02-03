@@ -17,3 +17,8 @@ Very simple bot using discord.js and MongoDB
 2. Clone the repo
 3. `npm i` or `yarn` in the root directory
 4. `npm start`
+
+## With Docker
+
+1. docker-compose build
+2. docker-compose up
