@@ -14,10 +14,10 @@ client.on("message", async msg => {
     userId: msg.author.id,
     userName: msg.author.username,
     lastCheckin: new Date(),
-    daysCompleted: 0,
+    daysCompleted: 1,
     startDate: new Date(),
     roundsCompleted: 0,
-    totalDaysCompleted: 0
+    totalDaysCompleted: 1
   };
   const user = await User.findOne({ userId: msg.author.id });
   // shit ton of if statements, refactor at some point
@@ -26,7 +26,8 @@ client.on("message", async msg => {
     msg.author.send(
       "Nice! You have joined #100DaysOfCode! Check in everyday with !completed to make sure it is logged with the bot. To remove yourself from this event type !remove"
     );
-  }
+  } // adding an else here to tell the user they've been registered throws a DiscordAPIError
+  // the same thing for everything else too
   if (msg.content === "!remove" && msg.channel.type === "dm" && user) {
     User.findOneAndDelete({ userId: msg.author.id }).exec();
     msg.author.send("No longer tracking your progress.");
@@ -73,6 +74,23 @@ client.on("message", async msg => {
       .addField("Current days completed", user.daysCompleted)
       .addField("Rounds completed", user.roundsCompleted)
       .addField("Total days completed", user.totalDaysCompleted);
+    msg.author.send({ embed });
+  }
+  if (msg.content === "!commands") {
+    const embed = new Discord.RichEmbed()
+      .setTitle(`#100DaysOfCode commands`)
+      .setColor(0x00ae86)
+      .addField("!join", "Join the event and sets your current day at 1")
+      .addField("!completed", "Logs your completed day")
+      .addField(
+        "!remove",
+        "Deletes all of your stats and removes you from the databse"
+      )
+      .addField(
+        "!stats",
+        "Shows your current streak, days completed and rounds completed"
+      )
+      .addField("!current", "Shows your current streak");
     msg.author.send({ embed });
   }
 });
