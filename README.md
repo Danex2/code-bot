@@ -8,7 +8,8 @@ Very simple bot using discord.js and MongoDB
 `!current` - Shows your current streak  
 `!remove` - Remove yourself from the DB  
 `!completed` - Check in for the day  
-`!stats` - Show your current stats (current streak, rounds completed, total days completed)
+`!stats` - Show your current stats (current streak, rounds completed, total days completed)  
+`!commands` - Shows all of the current commands
 
 ## Run
 
