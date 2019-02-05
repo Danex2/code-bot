@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const User = require("./models/User");
 const mongoose = require("mongoose");
+const utils = require("./utils/utils");
 require("dotenv").config();
 mongoose.Promise = global.Promise;
 
@@ -10,6 +11,7 @@ client.on("ready", () => {
 });
 
 client.on("message", async msg => {
+  if (msg.author.bot) return;
   let userData = {
     userId: msg.author.id,
     userName: msg.author.username,
@@ -21,18 +23,33 @@ client.on("message", async msg => {
   };
   const user = await User.findOne({ userId: msg.author.id });
   // shit ton of if statements, refactor at some point
-  if (msg.content === "!join" && msg.channel.type === "dm" && !user) {
-    User.create(userData);
+  // need a better command handler
+  if (
+    msg.content === "!join" &&
+    msg.channel.type === "dm" &&
+    utils.checkUser(user)
+  ) {
+    await User.create(userData);
     msg.author.send(
       "Nice! You have joined #100DaysOfCode! Check in everyday with !completed to make sure it is logged with the bot. To remove yourself from this event type !remove"
-    );
-  } // adding an else here to tell the user they've been registered throws a DiscordAPIError
-  // the same thing for everything else too
-  if (msg.content === "!remove" && msg.channel.type === "dm" && user) {
+    ); // adding an else here to tell the user they've been registered throws a DiscordAPIError
+    // the same thing for everything else too
+  } else {
+    client.users.get(msg.author.id).send("You've already joined!");
+  }
+  if (
+    msg.content === "!remove" &&
+    msg.channel.type === "dm" &&
+    !utils.checkUser(user)
+  ) {
     User.findOneAndDelete({ userId: msg.author.id }).exec();
     msg.author.send("No longer tracking your progress.");
   }
-  if (msg.content === "!current" && msg.channel.type === "dm" && user) {
+  if (
+    msg.content === "!current" &&
+    msg.channel.type === "dm" &&
+    !utils.checkUser(user)
+  ) {
     msg.author.send(
       `You have completed [${user.daysCompleted}/100] days! Keep it up!`
     );
@@ -40,7 +57,7 @@ client.on("message", async msg => {
   if (
     msg.content === "!completed" &&
     msg.channel.type === "dm" &&
-    user &&
+    !utils.checkUser(user) &&
     user.lastCheckin.getTime() !== new Date(user.lastCheckin).getTime()
   ) {
     if (user.daysCompleted === 100) {
@@ -58,13 +75,8 @@ client.on("message", async msg => {
       ).exec();
       msg.author.send("Day completed! Good job!");
     }
-  } else if (
-    msg.content === "!completed" &&
-    msg.channel.type === "dm" &&
-    user &&
-    user.lastCheckin.getTime() === new Date(user.lastCheckin).getTime()
-  ) {
-    msg.author.send("You've already checked in!").catch(e => console.log(e));
+  } else {
+    client.users.get(msg.author.id).send("You've already !");
   }
   if (msg.content === "!stats" && user) {
     const embed = new Discord.RichEmbed()
